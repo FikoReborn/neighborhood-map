@@ -201,7 +201,6 @@ class App extends Component {
     ];
 
     const map = new window.google.maps.Map(document.getElementById("map"), {
-      zoom: 9,
       styles: styles,
       mapTypeControl: false,
       center: {
@@ -209,6 +208,8 @@ class App extends Component {
         lng: -73.921
       }
     });
+
+    let bounds = new window.google.maps.LatLngBounds();
 
     for (let i = 0; i < locations.length; i++) {
       let position = locations[i].location;
@@ -221,8 +222,11 @@ class App extends Component {
           animation: window.google.maps.Animation.DROP,
           id: i
         });
+        bounds.extend(marker.position);
       }
     }
+    map.fitBounds(bounds);
+
   };
 
   render() {
