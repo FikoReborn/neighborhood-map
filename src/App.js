@@ -51,7 +51,7 @@ class App extends Component {
   filterCounty = (county) => {
     const locations = this.state.locations;
     locations.forEach(location => {
-      if (location.county !== county) {
+      if (location.county !== county && county !== "All Counties") {
         location.display = false;
       } else {
         location.display = true;
@@ -209,6 +209,7 @@ class App extends Component {
       }
     });
 
+    let parksInfoWindow = new window.google.maps.InfoWindow();
     let bounds = new window.google.maps.LatLngBounds();
 
     for (let i = 0; i < locations.length; i++) {
@@ -222,6 +223,17 @@ class App extends Component {
           animation: window.google.maps.Animation.DROP,
           id: i
         });
+        marker.addListener('click', () => {
+          if (parksInfoWindow.marker != marker) {
+            parksInfoWindow.marker = marker;
+            parksInfoWindow.setContent('<div>' + marker.title + '</div>');
+            parksInfoWindow.open(map, marker);
+            // Make sure the marker property is cleared if the infowindow is closed.
+            parksInfoWindow.addListener('closeclick',function(){
+              parksInfoWindow.setMarker = null;
+            });
+          }
+        })
         bounds.extend(marker.position);
       }
     }
