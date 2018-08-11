@@ -215,7 +215,10 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <FilterOptions locations={this.state.locations} />
+        <FilterOptions 
+          locations={this.state.locations} 
+          counties={this.state.counties}
+        />
         <div className="neighborhood-map" id="map" />
       </div>
     );
