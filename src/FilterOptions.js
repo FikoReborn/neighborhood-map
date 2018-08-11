@@ -7,13 +7,13 @@ class FilterOptions extends Component {
     return (
       <div className="filter-options-container">
         <div className="filter-options-form">
-            <select>
+            <input type="text" name="Filter" placeholder="Filter Locations" className="search-field" />
+            <select className="filter-counties-list">
                 <option>All Counties</option>
                 {counties.map(county => (
                     <option>{county}</option>
                 ))}
             </select>
-            <input type="text" name="Filter" placeholder="Filter Locations" className="search-field" />
             <ul className='list-locations'>
                 {locations.map(thislocation => (
                     <li key={thislocation.id}>{thislocation.title}</li>

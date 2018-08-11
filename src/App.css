@@ -48,12 +48,26 @@ html {
   border: 2px solid #000;
   background-color: #fffad1;
   border-radius: 15px;
-  width: 80%;
+  width: 50%;
   padding: 8px;
+  margin-right: 20px;
 }
 
 .search-field:focus {
   background-color: #ffffff;
+  outline: none;
+  color: #000;
+}
+
+.filter-counties-list {
+  background-color: #fffad1;
+  border: 2px solid #000;
+  border-radius: 15px;
+  padding: 8px;
+}
+
+.filter-counties-list:focus {
+  background-color: #fff;
   outline: none;
   color: #000;
 }
