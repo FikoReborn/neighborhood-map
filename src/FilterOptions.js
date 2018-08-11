@@ -3,20 +3,22 @@ import "./App.css";
 
 class FilterOptions extends Component {
   render() {
-    const { counties, locations } = this.props;
+    const { counties, locations, filterCounty } = this.props;
     return (
       <div className="filter-options-container">
         <div className="filter-options-form">
             <input type="text" name="Filter" placeholder="Filter Locations" className="search-field" />
-            <select className="filter-counties-list">
+            <select className="filter-counties-list" onChange={(event) => filterCounty(event.target.value)}>
                 <option>All Counties</option>
                 {counties.map(county => (
-                    <option>{county}</option>
+                    <option key={county}>{county}</option>
                 ))}
             </select>
             <ul className='list-locations'>
                 {locations.map(thislocation => (
+                    thislocation.display && (
                     <li key={thislocation.id}>{thislocation.title}</li>
+                    )
                 ))}
             </ul>
         </div>

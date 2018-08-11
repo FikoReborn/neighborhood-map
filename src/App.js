@@ -29,6 +29,7 @@ class App extends Component {
           title: thisPark[8],
           county: thisPark[11],
           website: thisPark[17][0],
+          display: true,
           location: {
             lat: Number(thisPark[21]),
             lng: Number(thisPark[20])
@@ -47,8 +48,17 @@ class App extends Component {
     })
   }
 
-  filterData(data) {
-
+  filterCounty = (county) => {
+    const locations = this.state.locations;
+    locations.forEach(location => {
+      if (location.county !== county) {
+        location.display = false;
+      } else {
+        location.display = true;
+      }
+    })
+    this.setState({locations})
+    this.initMap();
   }
 
   initMap = () => {
@@ -202,13 +212,15 @@ class App extends Component {
     for (let i = 0; i < locations.length; i++) {
       let position = locations[i].location;
       let title = locations[i].title;
-      let marker = new window.google.maps.Marker({
-        map: map,
-        position: position,
-        title: title,
-        animation: window.google.maps.Animation.DROP,
-        id: i
-      });
+      if (locations[i].display === true) {
+        let marker = new window.google.maps.Marker({
+          map: map,
+          position: position,
+          title: title,
+          animation: window.google.maps.Animation.DROP,
+          id: i
+        });
+      }
     }
   };
 
@@ -218,6 +230,7 @@ class App extends Component {
         <FilterOptions 
           locations={this.state.locations} 
           counties={this.state.counties}
+          filterCounty={this.filterCounty}
         />
         <div className="neighborhood-map" id="map" />
       </div>
