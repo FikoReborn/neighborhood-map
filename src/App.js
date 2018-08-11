@@ -203,6 +203,7 @@ class App extends Component {
     const map = new window.google.maps.Map(document.getElementById("map"), {
       zoom: 9,
       styles: styles,
+      mapTypeControl: false,
       center: {
         lat: 41.7004,
         lng: -73.921
@@ -212,7 +213,7 @@ class App extends Component {
     for (let i = 0; i < locations.length; i++) {
       let position = locations[i].location;
       let title = locations[i].title;
-      if (locations[i].display === true) {
+      if (locations[i].display) {
         let marker = new window.google.maps.Marker({
           map: map,
           position: position,
