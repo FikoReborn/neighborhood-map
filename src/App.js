@@ -5,7 +5,8 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    locations: []
+    locations: [],
+    counties: []
   };
 
   componentDidMount() {
@@ -18,6 +19,7 @@ class App extends Component {
 
   getData() {
     let parks = [];
+    let counties = [];
     fetch('https://data.ny.gov/api/views/9uuk-x7vh/rows.json')
     .then(response => response.json())
     .then(thisJson => {
@@ -37,12 +39,16 @@ class App extends Component {
         }
         parks.push(park);
       })
-      this.setState({locations: parks})
+      thisJson.meta.view.columns[11].cachedContents.top.forEach(thisCounty => {
+        counties.push(thisCounty.item);
+      })
+      this.setState({counties});
+      this.setState({locations: parks});
     })
   }
 
   filterData(data) {
-    
+
   }
 
   initMap = () => {
