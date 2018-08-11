@@ -10,7 +10,7 @@ class FilterOptions extends Component {
             <input type="text" name="Filter" placeholder="Filter Locations" className="search-field" />
             <ul className='list-locations'>
                 {locations.map((thislocation) => (
-                    <li key={thislocation.title}>{thislocation.title}</li>
+                    <li key={thislocation.id}>{thislocation.title}</li>
                 ))}
             </ul>
         </div>

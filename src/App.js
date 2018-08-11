@@ -5,120 +5,7 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    locations: [
-      {
-        title: "Bear Mountain State Park",
-        location: {
-          lat: 41.2846,
-          lng: -74.0006
-        }
-      },
-      {
-        title: "Blauvelt State Park",
-        location: {
-          lat: 41.0715,
-          lng: -73.9389
-        }
-      },
-      {
-        title: "Clarence Fahnestock Memorial State Park",
-        location: {
-          lat: 41.4657,
-          lng: -73.8364
-        }
-      },
-      {
-        title: "Clermont State Park",
-        location: {
-          lat: 42.0828,
-          lng: -73.9051
-        }
-      },
-      {
-        title: "High Tor State Park",
-        location: {
-          lat: 41.1908,
-          lng: -73.9819
-        }
-      },
-      {
-        title: "Hook Mountain State Park",
-        location: {
-          lat: 41.1279,
-          lng: -73.9123
-        }
-      },
-      {
-        title: "James Baird State Park",
-        location: {
-          lat: 41.686,
-          lng: -73.7917
-        }
-      },
-      {
-        title: "Lake Taghkanic State Park",
-        location: {
-          lat: 42.0954,
-          lng: -73.7134
-        }
-      },
-      {
-        title: "Mohansic State Park",
-        location: {
-          lat: 41.2821,
-          lng: -73.8082
-        }
-      },
-      {
-        title: "Norrie State Park",
-        location: {
-          lat: 41.8413,
-          lng: -73.9404
-        }
-      },
-      {
-        title: "Rockland Lake State Park",
-        location: {
-          lat: 41.1466,
-          lng: -73.9184
-        }
-      },
-      {
-        title: "Stony Point State Park",
-        location: {
-          lat: 41.2413,
-          lng: 73.9735
-        }
-      },
-      {
-        title: "Storm King State Park",
-        location: {
-          lat: 41.4318,
-          lng: -73.9973
-        }
-      },
-      {
-        title: "Taconic State Park",
-        location: {
-          lat: 42.1221,
-          lng: -73.5154
-        }
-      },
-      {
-        title: "Tallman Mountain State Park",
-        location: {
-          lat: 41.0305,
-          lng: -73.914
-        }
-      },
-      {
-        title: "Vanderbilt Mansion National Historic Site",
-        location: {
-          lat: 41.7963,
-          lng: -73.9424
-        }
-      }
-    ]
+    locations: []
   };
 
   componentDidMount() {
@@ -126,6 +13,36 @@ class App extends Component {
       "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg",
       this.initMap
     );
+    this.getData();
+  }
+
+  getData() {
+    let parks = [];
+    fetch('https://data.ny.gov/api/views/9uuk-x7vh/rows.json')
+    .then(response => response.json())
+    .then(thisJson => {
+      thisJson.data.forEach(thisPark => {
+        let park = {
+          id: thisPark[0],
+          title: thisPark[8],
+          county: thisPark[11],
+          website: thisPark[17][0],
+          location: {
+            lat: Number(thisPark[21]),
+            lng: Number(thisPark[20])
+          }
+        }
+        if (thisPark[9] !== 'Other') {
+          park.title += ' ' + thisPark[9];
+        }
+        parks.push(park);
+      })
+      this.setState({locations: parks})
+    })
+  }
+
+  filterData(data) {
+    
   }
 
   initMap = () => {
