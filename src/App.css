@@ -31,6 +31,7 @@ html {
 }
 
 .filter-options-container .list-locations li {
+  padding-bottom: 10px;
   list-style: none;
 }
 
