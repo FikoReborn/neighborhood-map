@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import loadjs from "loadjs";
 import FilterOptions from "./FilterOptions";
+import MapHeader from './MapHeader';
 import "./App.css";
 
 class App extends Component {
