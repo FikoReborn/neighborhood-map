@@ -11,7 +11,7 @@ class App extends Component {
 
   componentDidMount() {
     loadjs(
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg",
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg&libraries=places",
       this.initMap
     );
     this.getData();
@@ -45,6 +45,7 @@ class App extends Component {
       })
       this.setState({counties});
       this.setState({locations: parks});
+      this.initMap();
     })
   }
 
@@ -211,7 +212,6 @@ class App extends Component {
 
     let parksInfoWindow = new window.google.maps.InfoWindow();
     let bounds = new window.google.maps.LatLngBounds();
-
     for (let i = 0; i < locations.length; i++) {
       let position = locations[i].location;
       let title = locations[i].title;
