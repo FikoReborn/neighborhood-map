@@ -17,7 +17,8 @@ class FilterOptions extends Component {
             <ul className='list-locations'>
                 {locations.map(thislocation => (
                     thislocation.display && (
-                    <li key={thislocation.id}>{thislocation.title}</li>
+                    <li key={thislocation.id}>{thislocation.title} {thislocation.type}
+                    </li>
                     )
                 ))}
             </ul>

@@ -6,50 +6,54 @@ import "./App.css";
 class App extends Component {
   state = {
     locations: [],
-    counties: []
+    counties: [],
+    mapLoaded: false
   };
 
   componentDidMount() {
     loadjs(
       "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg&libraries=places",
-      this.initMap
+      this.getData
     );
-    this.getData();
   }
 
-  getData() {
+  getData = () => {
     let parks = [];
     let counties = [];
-    fetch('https://data.ny.gov/api/views/9uuk-x7vh/rows.json')
-    .then(response => response.json())
-    .then(thisJson => {
-      thisJson.data.forEach(thisPark => {
-        let park = {
-          id: thisPark[0],
-          title: thisPark[8],
-          county: thisPark[11],
-          website: thisPark[17][0],
-          display: true,
-          location: {
-            lat: Number(thisPark[21]),
-            lng: Number(thisPark[20])
+    fetch("https://data.ny.gov/api/views/9uuk-x7vh/rows.json")
+      .then(response => response.json())
+      .then(thisJson => {
+        thisJson.data.forEach(thisPark => {
+          let park = {
+            id: thisPark[0],
+            title: thisPark[8],
+            county: thisPark[11],
+            website: thisPark[17][0],
+            display: true,
+            location: {
+              lat: Number(thisPark[21]),
+              lng: Number(thisPark[20])
+            }
+          };
+          if (thisPark[9] !== "Other") {
+            park.type = thisPark[9];
+          } else {
+            park.type = "";
           }
-        }
-        if (thisPark[9] !== 'Other') {
-          park.title += ' ' + thisPark[9];
-        }
-        parks.push(park);
-      })
-      thisJson.meta.view.columns[11].cachedContents.top.forEach(thisCounty => {
-        counties.push(thisCounty.item);
-      })
-      this.setState({counties});
-      this.setState({locations: parks});
-      this.initMap();
-    })
-  }
+          parks.push(park);
+        });
+        thisJson.meta.view.columns[11].cachedContents.top.forEach(
+          thisCounty => {
+            counties.push(thisCounty.item);
+          }
+        );
+        this.setState({ counties });
+        this.setState({ locations: parks });
+        this.initMap();
+      });
+  };
 
-  filterCounty = (county) => {
+  filterCounty = county => {
     const locations = this.state.locations;
     locations.forEach(location => {
       if (location.county !== county && county !== "All Counties") {
@@ -57,13 +61,13 @@ class App extends Component {
       } else {
         location.display = true;
       }
-    })
-    this.setState({locations})
+    });
+    this.setState({ locations });
     this.initMap();
-  }
+  };
 
   initMap = () => {
-    const locations = this.state.locations;
+    let locations = this.state.locations;
     // Style made by Aiziel Nazario and posted to snazzymaps.com
     // https://snazzymaps.com/style/137900/green
     const styles = [
@@ -201,8 +205,9 @@ class App extends Component {
       }
     ];
 
-    const map = new window.google.maps.Map(document.getElementById("map"), {
+    this.map = new window.google.maps.Map(document.getElementById("map"), {
       styles: styles,
+      zoom: 7,
       mapTypeControl: false,
       center: {
         lat: 41.7004,
@@ -210,11 +215,17 @@ class App extends Component {
       }
     });
 
-    let parksInfoWindow = new window.google.maps.InfoWindow();
-    let bounds = new window.google.maps.LatLngBounds();
+    this.setMarkers(this.map);
+  };
+
+  setMarkers = map => {
+    const locations = this.state.locations;
+    const parksInfoWindow = new window.google.maps.InfoWindow();
+    const bounds = new window.google.maps.LatLngBounds();
+
     for (let i = 0; i < locations.length; i++) {
       let position = locations[i].location;
-      let title = locations[i].title;
+      let title = locations[i].title + ' ' + locations[i].type;
       if (locations[i].display) {
         let marker = new window.google.maps.Marker({
           map: map,
@@ -223,29 +234,57 @@ class App extends Component {
           animation: window.google.maps.Animation.DROP,
           id: i
         });
-        marker.addListener('click', () => {
-          if (parksInfoWindow.marker != marker) {
-            parksInfoWindow.marker = marker;
-            parksInfoWindow.setContent('<div>' + marker.title + '</div>');
-            parksInfoWindow.open(map, marker);
-            // Make sure the marker property is cleared if the infowindow is closed.
-            parksInfoWindow.addListener('closeclick',function(){
-              parksInfoWindow.setMarker = null;
-            });
-          }
-        })
+        marker.addListener("click", () =>
+          this.markerListener(parksInfoWindow, marker, map)
+        );
         bounds.extend(marker.position);
       }
     }
-    map.fitBounds(bounds);
 
+    map.fitBounds(bounds);
+  };
+
+  markerListener = (parksInfoWindow, marker, map) => {
+    if (parksInfoWindow.marker != marker) {
+      let geocoder = new window.google.maps.Geocoder();
+      let service = new window.google.maps.places.PlacesService(map);
+      geocoder.geocode({'location': marker.position}, (results, geocodeStatus) => {
+        if (geocodeStatus === 'OK') {
+          service.getDetails({placeId:results[0].place_id}, (park, detailsStatus) => {
+            if (detailsStatus === window.google.maps.places.PlacesServiceStatus.OK) {
+              parksInfoWindow.marker = marker;
+              parksInfoWindow.setContent("<div><strong>" + marker.title + "</strong><br>" + park.formatted_address + "</div>");
+              parksInfoWindow.open(map, marker);
+              // Make sure the marker property is cleared if the infowindow is closed.
+              parksInfoWindow.addListener("closeclick", function() {
+                parksInfoWindow.setMarker = null;
+              });
+              console.log(park)
+            } else {
+              console.log('fail')
+            }
+          })
+        }
+      })
+    }
+  };
+
+  findPlaceID = (park, map) => {
+    const service = new window.google.maps.places.PlacesService(map);
+    service.textSearch({ query: park.title }, (parkInfo, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        park.id = parkInfo[0].place_id;
+      } else {
+        console.log(status);
+      }
+    });
   };
 
   render() {
     return (
       <div className="App">
-        <FilterOptions 
-          locations={this.state.locations} 
+        <FilterOptions
+          locations={this.state.locations}
           counties={this.state.counties}
           filterCounty={this.filterCounty}
         />
