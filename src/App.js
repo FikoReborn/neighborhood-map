@@ -230,6 +230,8 @@ class App extends Component {
           map: map,
           position: position,
           title: title,
+          website: locations[i].website,
+          county: locations[i].county,
           animation: window.google.maps.Animation.DROP,
           id: i
         });
@@ -250,7 +252,7 @@ class App extends Component {
     if (parksInfoWindow.marker !== marker) {
       parksInfoWindow.marker = marker;
       InfoContent = `<strong>${marker.title}</strong>`;
-      parksInfoWindow.setContent(`<div className="infowindow">${InfoContent}<p>Loading data...</p></div>`);
+      parksInfoWindow.setContent(`<div class="infowindow">${InfoContent}<p>Loading data...</p></div>`);
       parksInfoWindow.open(map, marker);
       parksInfoWindow.addListener("closeclick", function () {
         parksInfoWindow.setMarker = null;
@@ -259,10 +261,14 @@ class App extends Component {
         if (geocodeStatus === 'OK') {
           service.getDetails({ placeId: results[0].place_id }, (park, detailsStatus) => {
             if (detailsStatus === window.google.maps.places.PlacesServiceStatus.OK) {
-              InfoContent += `<p><a href="${park.url}" target="_blank">${park.formatted_address}</a></p>`;
+              InfoContent += `<p class="address-link"><a href="${park.url}" target="_blank">${park.formatted_address}</a></p>`;
               var nearStreetViewLocation = park.geometry.location;
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
-              InfoContent += `<img src="https://maps.googleapis.com/maps/api/streetview?size=350x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=10&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
+              InfoContent += `<p><strong>${marker.county} County</strong></p>`;
+              InfoContent += `<img class="street-image" src="https://maps.googleapis.com/maps/api/streetview?size=350x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=10&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
+              if (marker.website) {
+                InfoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`
+              }
               parksInfoWindow.setContent(`<div className="infowindow">${InfoContent}</div>`);
             }
           })
