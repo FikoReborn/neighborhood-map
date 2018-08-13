@@ -12,7 +12,7 @@ class App extends Component {
 
   componentDidMount() {
     loadjs(
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg&libraries=places",
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg&libraries=places,geometry",
       this.getData
     );
   }
@@ -234,7 +234,7 @@ class App extends Component {
           id: i
         });
         marker.addListener("click", () =>
-          this.markerListener(parksInfoWindow, marker, map)
+          this.markerListener(parksInfoWindow, marker, map, position)
         );
         bounds.extend(marker.position);
       }
@@ -243,44 +243,32 @@ class App extends Component {
     map.fitBounds(bounds);
   };
 
-  markerListener = (parksInfoWindow, marker, map) => {
+  markerListener = (parksInfoWindow, marker, map, position) => {
     let geocoder = new window.google.maps.Geocoder();
     let service = new window.google.maps.places.PlacesService(map);
-    let streetview = new window.google.maps.StreetViewService();
+    let InfoContent = '';
     if (parksInfoWindow.marker !== marker) {
-      geocoder.geocode({'location': marker.position}, (results, geocodeStatus) => {
+      parksInfoWindow.marker = marker;
+      InfoContent = `<strong>${marker.title}</strong>`;
+      parksInfoWindow.setContent(`<div className="infowindow">${InfoContent}<p>Loading data...</p></div>`);
+      parksInfoWindow.open(map, marker);
+      parksInfoWindow.addListener("closeclick", function () {
+        parksInfoWindow.setMarker = null;
+      });
+      geocoder.geocode({ 'location': marker.position }, (results, geocodeStatus) => {
         if (geocodeStatus === 'OK') {
-          service.getDetails({placeId:results[0].place_id}, (park, detailsStatus) => {
+          service.getDetails({ placeId: results[0].place_id }, (park, detailsStatus) => {
             if (detailsStatus === window.google.maps.places.PlacesServiceStatus.OK) {
-              streetview.getPanorama({'location': marker.position}, (pano, panoStatus) => {
-                console.log(pano);
-              })
-              parksInfoWindow.marker = marker;
-              parksInfoWindow.setContent("<div><strong>" + marker.title + "</strong><br><a href='" + park.url + "' target='_blank'>" + park.formatted_address + "</a></div>");
-              parksInfoWindow.open(map, marker);
-              // Make sure the marker property is cleared if the infowindow is closed.
-              parksInfoWindow.addListener("closeclick", function() {
-                parksInfoWindow.setMarker = null;
-              });
-              
-            } else {
-              console.log('fail')
+              InfoContent += `<p><a href="${park.url}" target="_blank">${park.formatted_address}</a></p>`;
+              var nearStreetViewLocation = park.geometry.location;
+              var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
+              InfoContent += `<img src="https://maps.googleapis.com/maps/api/streetview?size=350x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=10&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
+              parksInfoWindow.setContent(`<div className="infowindow">${InfoContent}</div>`);
             }
           })
         }
       })
     }
-  };
-
-  findPlaceID = (park, map) => {
-    const service = new window.google.maps.places.PlacesService(map);
-    service.textSearch({ query: park.title }, (parkInfo, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        park.id = parkInfo[0].place_id;
-      } else {
-        console.log(status);
-      }
-    });
   };
 
   render() {
