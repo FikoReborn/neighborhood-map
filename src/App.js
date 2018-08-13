@@ -67,7 +67,6 @@ class App extends Component {
   };
 
   initMap = () => {
-    let locations = this.state.locations;
     // Style made by Aiziel Nazario and posted to snazzymaps.com
     // https://snazzymaps.com/style/137900/green
     const styles = [
@@ -245,21 +244,25 @@ class App extends Component {
   };
 
   markerListener = (parksInfoWindow, marker, map) => {
-    if (parksInfoWindow.marker != marker) {
-      let geocoder = new window.google.maps.Geocoder();
-      let service = new window.google.maps.places.PlacesService(map);
+    let geocoder = new window.google.maps.Geocoder();
+    let service = new window.google.maps.places.PlacesService(map);
+    let streetview = new window.google.maps.StreetViewService();
+    if (parksInfoWindow.marker !== marker) {
       geocoder.geocode({'location': marker.position}, (results, geocodeStatus) => {
         if (geocodeStatus === 'OK') {
           service.getDetails({placeId:results[0].place_id}, (park, detailsStatus) => {
             if (detailsStatus === window.google.maps.places.PlacesServiceStatus.OK) {
+              streetview.getPanorama({'location': marker.position}, (pano, panoStatus) => {
+                console.log(pano);
+              })
               parksInfoWindow.marker = marker;
-              parksInfoWindow.setContent("<div><strong>" + marker.title + "</strong><br>" + park.formatted_address + "</div>");
+              parksInfoWindow.setContent("<div><strong>" + marker.title + "</strong><br><a href='" + park.url + "' target='_blank'>" + park.formatted_address + "</a></div>");
               parksInfoWindow.open(map, marker);
               // Make sure the marker property is cleared if the infowindow is closed.
               parksInfoWindow.addListener("closeclick", function() {
                 parksInfoWindow.setMarker = null;
               });
-              console.log(park)
+              
             } else {
               console.log('fail')
             }
