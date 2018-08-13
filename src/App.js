@@ -265,9 +265,9 @@ class App extends Component {
               var nearStreetViewLocation = park.geometry.location;
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
               InfoContent += `<p><strong>${marker.county} County</strong></p>`;
-              InfoContent += `<img class="street-image" src="https://maps.googleapis.com/maps/api/streetview?size=350x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=10&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
+              InfoContent += `<img class="street-image" src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=10&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
               if (marker.website) {
-                InfoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`
+                InfoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`;
               }
               parksInfoWindow.setContent(`<div className="infowindow">${InfoContent}</div>`);
             }
