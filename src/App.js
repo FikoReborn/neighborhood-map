@@ -62,8 +62,14 @@ class App extends Component {
                   .then(details => details.json())
                   .then(parkdetails => {
                       marker.contact = parkdetails.response.venue.contact;
-                      marker.rating = parkdetails.response.venue.rating;
+                      parkdetails.response.venue.rating && (marker.rating = parkdetails.response.venue.rating);
                   })
+                  .then(() =>{
+                    return;
+                  })
+      })
+      .then(() => {
+        return;
       })
       .catch(error => console.log(error));
   }
@@ -253,7 +259,9 @@ class App extends Component {
           id: i
         });
         marker.addListener("click", () => {
-          this.markerListener(parksInfoWindow, marker, map, position);
+          let InfoContent = '';
+          this.markerListener(parksInfoWindow, marker, map, position, InfoContent);
+          parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${InfoContent}</div></div>`);
         });
         bounds.extend(marker.position);
       }
@@ -262,11 +270,10 @@ class App extends Component {
     map.fitBounds(bounds);
   };
 
-  markerListener = (parksInfoWindow, marker, map, position) => {
+  markerListener = (parksInfoWindow, marker, map, position, InfoContent) => {
     this.getFoursquareData(position.lat, position.lng, marker);
     let geocoder = new window.google.maps.Geocoder();
     let service = new window.google.maps.places.PlacesService(map);
-    let InfoContent = '';
     if (parksInfoWindow.marker !== marker) {
       parksInfoWindow.marker = marker;
       InfoContent = `<strong>${marker.title}</strong>`;
@@ -283,13 +290,14 @@ class App extends Component {
               var nearStreetViewLocation = park.geometry.location;
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
               InfoContent += `<p><strong>${marker.county} County</strong></p>`;
-              InfoContent += `<p><img src="/Images/Foursquare.png" class="foursquare"> Rating: ${marker.rating} / <sup>10</sup></p>`;
+              InfoContent += `<img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=0&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
+              (marker.rating === 0) ? (InfoContent += `<p><img src="/Images/Foursquare.png" class="foursquare"> No Ratings Yet`) : (InfoContent += `<p><img src="/Images/Foursquare.png" class="foursquare"> Rating: ${marker.rating} / <sup>10</sup></p>`);
               marker.contact.twitter && (InfoContent += `<p>${marker.contact.twitter}</p>`);
               marker.contact.facebook && (InfoContent += `<p>${marker.contact.facebook}</p>`);
               marker.contact.formattedPhone && (InfoContent += `<p>${marker.contact.formattedPhone}</p>`);
               marker.rating && (InfoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`); 
+              console.log(marker)
               parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${InfoContent}</div></div>`);
-              document.getElementsByClassName('infowindow')[0].setAttribute('style', `background-image: url("https://maps.googleapis.com/maps/api/streetview?size=200x200&location=${position.lat},${position.lng}&heading=${heading}&pitch=0&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg")`);
             }
           })
         }
