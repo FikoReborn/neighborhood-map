@@ -53,6 +53,21 @@ class App extends Component {
       });
   };
 
+  getFoursquareData = (lat, lng, marker) => {
+    fetch(`https://api.foursquare.com/v2/venues/search?client_id=4JHXDI1WSAPJJDMNWR3AZHMFZHAVJBBAW3MT3G45US5KXVQS&client_secret=HSVBUXRQSKYB30IJL510PXHA11QOOFTHPHNR1SNSAWO53WJX&v=20180814&ll=${lat},${lng}`)
+      .then(response => response.json())
+      .then(data => {
+        const parkid = data.response.venues[0].id;
+        return fetch(`https://api.foursquare.com/v2/venues/${parkid}?client_id=4JHXDI1WSAPJJDMNWR3AZHMFZHAVJBBAW3MT3G45US5KXVQS&client_secret=HSVBUXRQSKYB30IJL510PXHA11QOOFTHPHNR1SNSAWO53WJX&v=20180814`)
+                  .then(details => details.json())
+                  .then(parkdetails => {
+                      marker.contact = parkdetails.response.venue.contact;
+                      marker.rating = parkdetails.response.venue.rating;
+                  })
+      })
+      .catch(error => console.log(error));
+  }
+
   filterCounty = county => {
     const locations = this.state.locations;
     locations.forEach(location => {
@@ -231,13 +246,15 @@ class App extends Component {
           position: position,
           title: title,
           website: locations[i].website,
+          rating: 0,
+          contact: {},
           county: locations[i].county,
           animation: window.google.maps.Animation.DROP,
           id: i
         });
-        marker.addListener("click", () =>
-          this.markerListener(parksInfoWindow, marker, map, position)
-        );
+        marker.addListener("click", () => {
+          this.markerListener(parksInfoWindow, marker, map, position);
+        });
         bounds.extend(marker.position);
       }
     }
@@ -246,13 +263,14 @@ class App extends Component {
   };
 
   markerListener = (parksInfoWindow, marker, map, position) => {
+    this.getFoursquareData(position.lat, position.lng, marker);
     let geocoder = new window.google.maps.Geocoder();
     let service = new window.google.maps.places.PlacesService(map);
     let InfoContent = '';
     if (parksInfoWindow.marker !== marker) {
       parksInfoWindow.marker = marker;
       InfoContent = `<strong>${marker.title}</strong>`;
-      parksInfoWindow.setContent(`<div class="infowindow">${InfoContent}<p>Loading data...</p></div>`);
+      parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${InfoContent}<p>Loading data...</p></div></div>`);
       parksInfoWindow.open(map, marker);
       parksInfoWindow.addListener("closeclick", function () {
         parksInfoWindow.setMarker = null;
@@ -265,11 +283,13 @@ class App extends Component {
               var nearStreetViewLocation = park.geometry.location;
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
               InfoContent += `<p><strong>${marker.county} County</strong></p>`;
-              InfoContent += `<img class="street-image" src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=10&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
-              if (marker.website) {
-                InfoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`;
-              }
-              parksInfoWindow.setContent(`<div className="infowindow">${InfoContent}</div>`);
+              InfoContent += `<p><img src="/Images/Foursquare.png" class="foursquare"> Rating: ${marker.rating} / <sup>10</sup></p>`;
+              marker.contact.twitter && (InfoContent += `<p>${marker.contact.twitter}</p>`);
+              marker.contact.facebook && (InfoContent += `<p>${marker.contact.facebook}</p>`);
+              marker.contact.formattedPhone && (InfoContent += `<p>${marker.contact.formattedPhone}</p>`);
+              marker.rating && (InfoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`); 
+              parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${InfoContent}</div></div>`);
+              document.getElementsByClassName('infowindow')[0].setAttribute('style', `background-image: url("https://maps.googleapis.com/maps/api/streetview?size=200x200&location=${position.lat},${position.lng}&heading=${heading}&pitch=0&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg")`);
             }
           })
         }
