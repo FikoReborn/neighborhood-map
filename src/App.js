@@ -64,6 +64,8 @@ class App extends Component {
                   .then(parkdetails => {
                       marker.contact = parkdetails.response.venue.contact;
                       marker.rating = parkdetails.response.venue.rating;
+                      marker.foursquareUrl = parkdetails.response.venue.shortUrl;
+                      console.log(parkdetails)
                   })
                   .then(() =>{
                     return;
@@ -262,7 +264,6 @@ class App extends Component {
           this.getFoursquareData(position.lat, position.lng, marker);
           let infoContent = '';
           this.markerListener(marker, position, infoContent);
-          this.parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${infoContent}</div></div>`);
         });
         this.bounds.extend(marker.position);
       }
@@ -290,18 +291,18 @@ class App extends Component {
           service.getDetails({ placeId: results[0].place_id }, (park, detailsStatus) => {
             if (detailsStatus === window.google.maps.places.PlacesServiceStatus.OK) {
               infoContent += `<p class="address-link"><a href="${park.url}" target="_blank">${park.formatted_address}</a></p>`;
+              marker.contact.formattedPhone && (infoContent += `<p>${marker.contact.formattedPhone}</p>`);
               var nearStreetViewLocation = park.geometry.location;
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
               infoContent += `<p><strong>${marker.county} County</strong></p>`;
               infoContent += `<img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=0&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
-              (marker.rating === undefined) ? (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> No Ratings Yet<br><br>`) : (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> Rating: ${marker.rating} / <sup>10</sup></p><p class="icons">`);
+              (marker.rating === undefined) ? (infoContent += `<p class="rating"><a href="${marker.foursquareUrl}" target="_blank"><i class="fa fa-lg fa-foursquare"></i> No Ratings Yet</a></p><p class="icons">`) : (infoContent += `<p class="rating"><a href="${marker.foursquareUrl}" target="_blank"><i class="fa fa-lg fa-foursquare"></i> Rating: ${marker.rating} / 10</a></p><p class="icons">`);
               marker.website && (infoContent += `<a href="${marker.website}" target="_blank"><i class="fa fa-2x fa-globe"></i></a>`); 
               marker.contact.twitter && (infoContent += `<a href="http://www.twitter.com/${marker.contact.twitter}" target="_blank"><i class="fa fa-2x fa-twitter-square"></i></a>`);
               marker.contact.facebook && (infoContent += `<a href="http://www.facebook.com/${marker.contact.facebook}" target="_blank"><i class="fa fa-2x fa-facebook-square"></i></a>`);
               infoContent += `</p>`;
-              marker.contact.formattedPhone && (infoContent += `<p>${marker.contact.formattedPhone}</p>`);
-              console.log(marker)
               parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${infoContent}</div></div>`);
+              
             }
           })
         }

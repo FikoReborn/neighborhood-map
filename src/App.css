@@ -95,9 +95,31 @@ html {
 }
 
 .fa-foursquare {
-  color: fuchsia;
+  color: #ff00ff;
+}
+
+.fa-foursquare:hover {
+  color: #a300a3;
 }
 
 .icons {
-  letter-spacing: 10px;
+  letter-spacing: 10px; 
+}
+
+.fa-twitter-square, .fa-facebook-square, .fa-globe {
+  color: #5e1515;
+}
+
+.fa-twitter-square:hover, .fa-facebook-square:hover, .fa-globe:hover {
+  color: #4f4fa3;
+}
+
+.rating {
+  font-size: 15px;
+}
+
+.rating a {
+  color: black;
+  text-decoration: none !important;
+  font-weight: 600;
 }
