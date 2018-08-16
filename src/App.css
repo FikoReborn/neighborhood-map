@@ -97,3 +97,7 @@ html {
 .fa-foursquare {
   color: fuchsia;
 }
+
+.icons {
+  letter-spacing: 10px;
+}

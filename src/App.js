@@ -294,11 +294,12 @@ class App extends Component {
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
               infoContent += `<p><strong>${marker.county} County</strong></p>`;
               infoContent += `<img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=0&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
-              (marker.rating === undefined) ? (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> No Ratings Yet`) : (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> Rating: ${marker.rating} / <sup>10</sup></p>`);
-              marker.contact.twitter && (infoContent += `<p>${marker.contact.twitter}</p>`);
-              marker.contact.facebook && (infoContent += `<p>${marker.contact.facebook}</p>`);
+              (marker.rating === undefined) ? (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> No Ratings Yet<br><br>`) : (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> Rating: ${marker.rating} / <sup>10</sup></p><p class="icons">`);
+              marker.website && (infoContent += `<a href="${marker.website}" target="_blank"><i class="fa fa-2x fa-globe"></i></a>`); 
+              marker.contact.twitter && (infoContent += `<a href="http://www.twitter.com/${marker.contact.twitter}" target="_blank"><i class="fa fa-2x fa-twitter-square"></i></a>`);
+              marker.contact.facebook && (infoContent += `<a href="http://www.facebook.com/${marker.contact.facebook}" target="_blank"><i class="fa fa-2x fa-facebook-square"></i></a>`);
+              infoContent += `</p>`;
               marker.contact.formattedPhone && (infoContent += `<p>${marker.contact.formattedPhone}</p>`);
-              marker.website && (infoContent += `<p class="address-link"><a href="${marker.website}" target="_blank">Website</a>`); 
               console.log(marker)
               parksInfoWindow.setContent(`<div class="infowindow"><div class="inner-info">${infoContent}</div></div>`);
             }
