@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import loadjs from "loadjs";
 import FilterOptions from "./FilterOptions";
+import 'font-awesome/css/font-awesome.min.css';
 import "./App.css";
 
 class App extends Component {
@@ -293,7 +294,7 @@ class App extends Component {
               var heading = window.google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
               infoContent += `<p><strong>${marker.county} County</strong></p>`;
               infoContent += `<img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${position.lat},${position.lng}&heading=${heading}&pitch=0&radius=3000&key=AIzaSyCGnAvu4__n-bl-rsNch6sLTHksCDbWJGg">`;
-              (marker.rating === undefined) ? (infoContent += `<p><img src="/Images/Foursquare.png" class="foursquare"> No Ratings Yet`) : (infoContent += `<p><img src="/Images/Foursquare.png" class="foursquare"> Rating: ${marker.rating} / <sup>10</sup></p>`);
+              (marker.rating === undefined) ? (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> No Ratings Yet`) : (infoContent += `<p><i class="fa fa-lg fa-foursquare"></i> Rating: ${marker.rating} / <sup>10</sup></p>`);
               marker.contact.twitter && (infoContent += `<p>${marker.contact.twitter}</p>`);
               marker.contact.facebook && (infoContent += `<p>${marker.contact.facebook}</p>`);
               marker.contact.formattedPhone && (infoContent += `<p>${marker.contact.formattedPhone}</p>`);
